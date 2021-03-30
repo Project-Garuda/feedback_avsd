@@ -1,41 +1,77 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 
 <html>
+
 <head>
 <meta name="robots" content="noindex,nofollow">
 <meta http-equiv="x-dns-prefetch-control" content="off">
-<title>Faculty Feedback Management System</title>
+<script type="text/javascript" language="JavaScript">
+<!--
+if (self != top) { try { if (document.domain != top.document.domain) { throw "Clickjacking security violation! Please log out immediately!"; /* this code should never execute - exception should already have been thrown since it's a security violation in this case to even try to access top.document.domain (but it's left here just to be extra safe) */ } } catch (e) { self.location = "/mail/src/signout.php"; top.location = "/mail/src/signout.php" } }
+// -->
+</script>
+
+<title>Indian Institute of Information Technology Guwahati - Login</title>
+<style type="text/css">
+/* avoid stupid IE6 bug with frames and scrollbars */
+#more{
+  cursor: pointer;
+}
+td {
+    padding-top: .3em;
+    padding-bottom: .3em;
+}
+</style>
+
+
 </head>
 
-<body text="#000000" bgcolor="#ffffff" >
-<form action="#" method="post" name="login_form"  >
-<table bgcolor="#ffffff" border="0" cellspacing="0" cellpadding="0" width="100%"><tr><td align="center"><center><img src="/static/images/iiitg_logo.jpeg" alt="Indian Institute of Information Technology Guwahati Logo" width="100" height="100" /><br />
+
+<form action="{{ url_for('home') }}" method="post" name="login_form"  >
+<table bgcolor="#ffffff" border="0" cellspacing="0" cellpadding="0" width="100%"><tr><td align="center"><center><img src="{{ url_for('static',filename='images/iiitg.JPG') }}" alt="Indian Institute of Information Technology Guwahati Logo" width="100" height="100" /><br />
 <small><br />
   <br /></small>
-<table bgcolor="#ffffff" border="0" width="500"><tr><td bgcolor="#dcdcdc" align="center"><b>Faculty Feedback Management System</b>
+<table bgcolor="#ffffff" border="0" width="350"><tr><td bgcolor="#dcdcdc" align="center"><b>Faculty Feedback Management System</b>
 </td>
 </tr>
 <tr><td bgcolor="#ffffff" align="left">
-<table bgcolor="#ffffff" align="center" border="0" width="100%"><tr><td align="right" width="30%">Student ID:</td>
-<td align="left" width="70%"><input type="text" name="username" value="" onfocus="alreadyFocused=true;" />
+<table bgcolor="#ffffff" align="center" border="0" width="100%"><tr><td align="right" width="30%"> ID:</td>
+<td align="left" width="70%"><input type="text" name="login_username" value="" onfocus="alreadyFocused=true;" required/>
 </td>
 </tr>
+<br>
 <tr><td align="right" width="30%">Password:</td>
-<td align="left" width="70%"><input type="password" name="secretkey" onfocus="alreadyFocused=true;" />
-<input type="hidden" name="js_autodetect_results" value="0" />
-<input type="hidden" name="just_logged_in" value="1" />
+<td align="left" width="70%"><input type="password" name="secretkey" onfocus="alreadyFocused=true;" required/>
+
 </td>
 </tr>
 </table>
 </td>
 </tr>
-<tr><td align="left"><center><input type="submit" value="Login" />
+
+<tr><td align="right"><center>
+  <input type="radio" id="more" name="role" value="student" checked>
+  <label for="student">Student</label>
+  <input type="radio" id="more" name="role" value="faculty">
+  <label for="faculty">Faculty</label>
+</center></td>
+</tr>
+<tr><td align="left"><center><input id="more" type="submit" value="Login" />
 </center></td>
 </tr>
 </table>
 </center></td>
 </tr>
 </table>
+<center>
+{% with messages = get_flashed_messages() %}
+         {% if messages %}
+                {% for message in messages %}
+                    <b><p style="color:red;">{{ message }}</p></b>
+                {% endfor %}
+          {% endif %}
+{% endwith %}
+</center>
 </form>
 </body>
 </html>
