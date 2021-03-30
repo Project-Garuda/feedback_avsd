@@ -28,10 +28,9 @@ from project.mod_student.controllers import mod_student
 from project.mod_student.models import Student
 from project.mod_faculty import controllers
 from project.mod_faculty.controllers import mod_faculty
-from project.mod_faculty.models import Faculty
+from project.mod_faculty.models import Faculty,Admin
 app.register_blueprint(mod_student, url_prefix='/student')
 app.register_blueprint(mod_faculty, url_prefix='/faculty')
-
 
 
 @app.route("/", methods=['GET', 'POST'])
@@ -54,3 +53,21 @@ def home():
                 flash("Login failed!")
 
     return render_template('index.html')
+
+@app.route("/admin", methods=['GET', 'POST'])
+def admin_home():
+    if request.method == "POST":
+        user_id = request.form['login_username']
+        admin = Admin.query.filter(Admin.id == user_id).first()
+        if admin and bcrypt.check_password_hash(admin.password, request.form['secretkey']):
+            session['user'] = user_id
+            return redirect(url_for('.admin_dashboard'))
+        else:
+            flash("Login failed!")
+
+    return render_template('admin_index.html')
+
+@app.after_request
+def after_request(response):
+    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    return response
