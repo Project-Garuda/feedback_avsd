@@ -8,7 +8,7 @@
   <meta name="description" content="">
   <meta name="author" content="">
 
-  <title>Faculty Dashboard</title>
+  <title>admin Dashboard</title>
 
   <!-- Bootstrap core CSS -->
   <link href= "{{ url_for('static',filename='vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
@@ -43,10 +43,10 @@
 
     <!-- Sidebar -->
     <div class="bg-light border-right" id="sidebar-wrapper">
-      <div class="sidebar-heading">Hello {{ faculty.name }}</div>
+      <div class="sidebar-heading">Hello {{ admin.name }}</div>
       <div class="list-group list-group-flush">
-        <a href="{{ url_for('faculty.faculty_dashboard') }}" class="list-group-item list-group-item-action bg-light">Home</a>
-        <a href="{{ url_for('faculty.logout') }}" class="list-group-item list-group-item-action bg-light">Log Out</a>
+        <a href="{{ url_for('admin.admin_dashboard') }}" class="list-group-item list-group-item-action bg-light">Home</a>
+        <a href="{{ url_for('admin.logout') }}" class="list-group-item list-group-item-action bg-light">Log Out</a>
       </div>
     </div>
     <!-- /#sidebar-wrapper -->
@@ -75,64 +75,36 @@
            </thead>
            <tbody>
                <tr>
-                   <td>A detailed course syllabus was provided at the beginning of the course.</td>
+                   <td>Tutorial sheet was provided prior to the tutorial session.</td>
                    <td>{{dict['p1']}}</td>
                </tr>
                <tr>
-                   <td>Text books were appropriate for the course.</td>
+                   <td>The Tutorial sheets were useful and followed the lectures.</td>
                    <td>{{dict['p2']}}</td>
                </tr>
                <tr>
-                   <td>Reference books provided good support for the course.</td>
+                   <td>The Tutorial sessions were highly enjoyable.</td>
                    <td>{{dict['p3']}}</td>
                </tr>
                <tr>
-                   <td>The course load was very heavy.</td>
+                   <td>The tutorial sheets were very difficult.</td>
                    <td>{{dict['p4']}}</td>
                </tr>
                <tr>
-                   <td>The course was highly enjoyable.</td>
+                   <td>The tutorial session helped in clarifiying basic concepts taught in the lectures.</td>
                    <td>{{dict['p5']}}</td>
                </tr>
                <tr>
-                   <td>Overall, the instructor was excellent.</td>
+                   <td>Overall, the Tutor was excellent.</td>
                    <td>{{dict['p6']}}</td>
                </tr>
                <tr>
-                   <td>The instructor was well prepared for the class.</td>
+                   <td>The Tutor was well prepared for the class.</td>
                    <td>{{dict['p7']}}</td>
                </tr>
                <tr>
-                   <td>The concepts were explained properly.</td>
+                   <td>The Tutor’s instructions were clear and understandable.</td>
                    <td>{{dict['p8']}}</td>
-               </tr>
-               <tr>
-                   <td>Classes were held regularly as per time-table.</td>
-                   <td>{{dict['p9']}}</td>
-               </tr>
-               <tr>
-                   <td>The instructor’s voice was audible and understandable. </td>
-                   <td>{{dict['p10']}}</td>
-               </tr>
-               <tr>
-                   <td>Black-board work/visual presentations were of good quality.</td>
-                   <td>{{dict['p11']}}</td>
-               </tr>
-               <tr>
-                   <td>Topics were covered in a logical sequence.</td>
-                   <td>{{dict['p12']}}</td>
-               </tr>
-               <tr>
-                   <td>The coverage of the course was complete.</td>
-                   <td>{{dict['p13']}}</td>
-               </tr>
-               <tr>
-                   <td>Questions and discussions were encouraged.</td>
-                   <td>{{dict['p14']}}</td>
-               </tr>
-               <tr>
-                   <td>Evaluation was done regularly &amp; academic advices were given.</td>
-                   <td>{{dict['p15']}}</td>
                </tr>
            </tbody>
        </table>
@@ -155,7 +127,7 @@
                  </tbody>
              </table>
          </div>
-        {% endif %}
+         {% endif %}
     </div>
     <!-- /#page-content-wrapper -->
 

@@ -8,7 +8,7 @@
   <meta name="description" content="">
   <meta name="author" content="">
 
-  <title>Admin | Dashboard</title>
+  <title>Admin | Upload</title>
 
   <!-- Bootstrap core CSS -->
   <link href= "{{ url_for('static',filename='vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
@@ -34,6 +34,17 @@
       padding-top: .3em;
       padding-bottom: .3em;
   }
+
+  #loading {
+    width: 35px;
+    height: 35px;
+    display: none;
+    background: url(/static/images/ajax-loader.gif) no-repeat;
+    cursor: wait;
+    }
+    #show-message{
+      display: none;
+    }
   </style>
 </head>
 
@@ -46,7 +57,6 @@
       <div class="sidebar-heading">Hello {{ admin.name }}</div>
       <div class="list-group list-group-flush">
         <a href="{{ url_for('admin.admin_dashboard') }}" class="list-group-item list-group-item-action bg-light">Home</a>
-        <a href="{{ url_for('admin.admin_upload') }}" class="list-group-item list-group-item-action bg-light">Upload Data</a>
         <a href="{{ url_for('admin.logout') }}" class="list-group-item list-group-item-action bg-light">Log Out</a>
       </div>
     </div>
@@ -65,51 +75,56 @@
       </nav>
 
       <div class="container-fluid">
-
         <div class="grid-x">
-        {% if upload_courses|length >0 %}
+        <h5 style="color:red;">Note: Uploading new data will erase the exisiting data.</h5>
+        <hr>
+            <form action="{{ url_for('.admin_upload') }}"  method=post enctype=multipart/form-data>
        <table class="stack hover sortable" id="courseTable">
            <thead>
                <tr>
-                   <th>Course ID</th>
-                   <th>Course Name</th>
-                   <th>Faculty</th>
-                   <th>Feedback</th>
+                   <th>File Name</th>
+                   <th>File</th>
                </tr>
            </thead>
            <tbody>
-           {% for course in upload_coures %}
                <tr>
-                   <td >{{ course.course_id }}</td>
-                   <td>{{ course_names.query.filter(course.course_id == course_names.id).first().name}}
-                   <td>{{ faculty.query.filter(course.faculty_id == faculty.id).first().name}}</td>
-                   <td><a href="{{ url_for('admin.view_responses',id=course.id) }}">View Responses</a></td>
+                   <td>Faculty Credentials</td>
+                   <td><input type=file name='faculty_credentials' required></td>
                </tr>
-           {% endfor %}
+               <tr>
+                   <td>Student Credentials</td>
+                   <td><input type=file name='student_credentials' required></td>
+               </tr>
+               <tr>
+                   <td>Courses</td>
+                   <td><input type=file name='courses_data' required></td>
+               </tr>
+               <tr>
+                   <td>Upload Section Data</td>
+                   <td><input type=file name='upload_section_data' required></td>
+               </tr>
            </tbody>
        </table>
-       {% else %}
-            <center>  <h5>No courses to display</h5> <center>
-       {% endif %}
+       <center> <input class="btn btn-primary" type="submit" value="Upload" onclick="loading();"></center>
+       </form>
    </div>
       </div>
+      <center><div id="loading"></div></center>
+      <center id="show-message"><b><p style="color:green;">Processing data, this might take a while... do not refresh the page</p></b></center>
       <center>
       {% with messages = get_flashed_messages() %}
                {% if messages %}
                       {% for message in messages %}
-                          <b><p style="color:green;">{{ message }}</p></b>
+                          <b><p style="color:red;">{{ message }}</p></b>
                       {% endfor %}
                 {% endif %}
       {% endwith %}
-    </center>
+  </center>
 
     </div>
     <!-- /#page-content-wrapper -->
 
   </div>
-  <!-- /#wrapper -->
-
-  <!-- Bootstrap core JavaScript -->
   <script src="{{ url_for('static',filename='vendor/jquery/jquery.min.js') }}"></script>
   <script src="{{ url_for('static',filename='vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
 
@@ -120,7 +135,13 @@
       $("#wrapper").toggleClass("toggled");
     });
   </script>
+  <script type="text/javascript">
+        function loading(){
+            $("#show-message").show();
+            $("#loading").show();
 
+        }
+  </script>
 </body>
 
 </html>

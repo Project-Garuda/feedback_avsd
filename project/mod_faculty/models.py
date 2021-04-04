@@ -50,12 +50,10 @@ class UploadCourses(Base):
     faculty_id = Column(Integer, ForeignKey('faculty.id', onupdate='CASCADE', ondelete='CASCADE'))
     course = Column(Integer, default = 0)
 
-    def __init__(self, rating, course_id, section_id, faculty_id, no_respones, course):
-        self.rating = rating
+    def __init__(self, course_id, section_id, faculty_id,course):
         self.course_id = course_id
         self.section_id = section_id
         self.faculty_id = faculty_id
-        self.no_respones = no_respones
         self.course = course
 
 

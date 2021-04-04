@@ -8,8 +8,8 @@ mod_student = Blueprint('student', __name__)
 
 @mod_student.route("/" ,methods=['GET', 'POST'])
 def student_dashboard():
-    if 'user' in session:
-        student = Student.query.filter(Student.id == session['user']).first()
+    if 'student' in session:
+        student = Student.query.filter(Student.id == session['student']).first()
         print(student)
         section_ids = []
         for section in student.section:
@@ -27,14 +27,14 @@ def student_dashboard():
 
 @mod_student.route('/logout')
 def logout():
-    if 'user' in session:
-        session.pop('user', None)
+    if 'student' in session:
+        session.pop('student', None)
         return redirect(url_for('home'))
     return redirect(url_for('home'))
 
 @mod_student.route('/submit/<int:id>',methods=['GET', 'POST'])
 def submit_feedback(id):
-    if 'user' in session:
+    if 'student' in session:
         if request.method == "POST":
             result = request.form
             curr_upload_course_obj = UploadCourses.query.filter(UploadCourses.id==id).first()
@@ -72,8 +72,8 @@ def submit_feedback(id):
             remark = request.form['remark'].strip()
             if len(remark)>0:
                 db_session.add(Feedback(id,remark))
-            fill = Filled(session['user'],id)
-            print(session['user'],id)
+            fill = Filled(session['student'],id)
+            print(session['student'],id)
             db_session.add(fill)
             try:
                 db_session.commit()
@@ -82,7 +82,7 @@ def submit_feedback(id):
                 print(e)
             return redirect(url_for('student.student_dashboard'))
         else:
-            student = Student.query.filter(Student.id == session['user']).first()
+            student = Student.query.filter(Student.id == session['student']).first()
             section_ids = []
             for section in student.section:
                 section_ids.append(section.id)

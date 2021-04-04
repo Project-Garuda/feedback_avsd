@@ -1,16 +1,15 @@
 from project.mod_faculty.models import Faculty,Courses,Feedback,Theory,Lab,Tutorial,UploadCourses,Admin
+from project.mod_student.models import Section
 from project import db_session, bcrypt,app
-from flask import Flask, render_template, request, redirect, url_for, Blueprint, session,abort
+from flask import Flask, render_template, request, redirect, url_for, Blueprint, session,abort,flash
 
 mod_faculty = Blueprint('faculty', __name__)
 
 @mod_faculty.route("/", methods=['GET', 'POST'])
 def faculty_dashboard():
-    if 'user' in session:
+    if 'faculty' in session:
         print('hey')
-        faculty = Faculty.query.filter(Faculty.id == session['user']).first()
-        print(faculty)
-        print(faculty.courses[0].course_id)
+        faculty = Faculty.query.filter(Faculty.id == session['faculty']).first()
         return render_template('faculty/faculty_dashboard.html',
         faculty = faculty,
         course_names = Courses,
@@ -18,31 +17,18 @@ def faculty_dashboard():
     else:
         return redirect(url_for('home'))
 
-@app.route("/admin/dashboard", methods=['GET', 'POST'])
-def admin_dashboard():
-    if 'user' in session:
-        admin = Admin.query.filter(Admin.id == session['user']).first()
-        upload_coures = UploadCourses.query.all()
-        return render_template('admin/admin_dashboard.html',
-        upload_coures=upload_coures,
-        faculty = Faculty,
-        course_names = Courses,
-        admin = admin,
-        )
-    else:
-        return redirect(url_for('home'))
 
 @mod_faculty.route('/logout')
 def logout():
-    if('user' in session):
-        session.pop('user', None)
+    if('faculty' in session):
+        session.pop('faculty', None)
     return redirect(url_for('home'))
 
 @mod_faculty.route('/view/<int:id>',methods=['GET', 'POST'])
 def view_responses(id):
-    if 'user' in session:
+    if 'faculty' in session:
         my_obj = UploadCourses.query.filter(UploadCourses.id==id).first()
-        faculty = Faculty.query.filter(Faculty.id == session['user']).first()
+        faculty = Faculty.query.filter(Faculty.id == session['faculty']).first()
         if my_obj.course == 0:
             theory = Theory.query.filter(Theory.id == id).first()
             if theory is None:
@@ -79,3 +65,53 @@ def view_responses(id):
             remarks=remarks,)
     else:
         return redirect(url_for('home'))
+
+@mod_faculty.route('/create',methods=['GET', 'POST'])
+def create_course():
+    if 'faculty' in session:
+        faculty = Faculty.query.filter(Faculty.id == session['faculty']).first()
+        if request.method=='POST':
+            course_id = request.form['course_id'].upper()
+            section_id = request.form['section_id'].upper()
+            dict = {'Theory':0, 'Lab':1, 'Tutorial':2}
+            type = dict[request.form['type']]
+            course = Courses.query.filter(Courses.id == course_id).first()
+            section = Section.query.filter(Section.id == section_id).first()
+            print("Debug1")
+            if course is None:
+                flash('Invalid Course ID')
+                return redirect(url_for('faculty.create_course'))
+            if section is None:
+                flash('Invalid Section iD')
+                return redirect(url_for('faculty.create_course'))
+            print("Debug2")
+            try:
+                check = UploadCourses.query.filter(UploadCourses.course_id == course_id,
+                UploadCourses.section_id == section_id,
+                UploadCourses.faculty_id == faculty.id,
+                UploadCourses.course  == type).first()
+                print("Debug3")
+                if check is not None:
+                    flash('Course already exists')
+                    return redirect(url_for('faculty.create_course'))
+                print("Debug4")
+                my_obj = UploadCourses(course_id,section_id,faculty.id,type)
+                db_session.add(my_obj)
+                db_session.commit()
+                print('Debug5')
+                if type == 0:
+                    db_session.add(Theory(my_obj.id))
+                elif type==1:
+                    db_session.add(Lab(my_obj.id))
+                else:
+                    db_session.add(Tutorial(my_obj.id))
+                db_session.commit()
+                print('Debug6')
+                flash('Course Created Successfully')
+                return redirect(url_for('faculty.faculty_dashboard'))
+            except Exception as e:
+                print(e)
+        else:
+            return render_template('faculty/create_course.html',
+            faculty=faculty,)
+    return redirect(url_for('home'))
