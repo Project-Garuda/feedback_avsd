@@ -8,7 +8,7 @@
   <meta name="description" content="">
   <meta name="author" content="">
 
-  <title>admin Dashboard</title>
+  <title>Admin | View Responses</title>
 
   <!-- Bootstrap core CSS -->
   <link href= "{{ url_for('static',filename='vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
@@ -66,6 +66,7 @@
       <div class="container-fluid">
 
         <div class="grid-x">
+            {% if dict['no_responses'] > 0: %}
        <table class="stack hover sortable" id="courseTable">
            <thead>
                <tr>
@@ -108,6 +109,9 @@
                </tr>
            </tbody>
        </table>
+       {% else %}
+            <center><h5>No Responses received so far</h5></center>
+       {% endif %}
    </div>
       </div>
       {% if remarks|length > 0 %}

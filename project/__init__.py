@@ -11,8 +11,9 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine
 
 Base = declarative_base()
-DATABASE_URI = 'mysql+pymysql://avsd:helloworld@localhost:3306/college'
-engine = create_engine(DATABASE_URI,echo = True)
+DATABASE_URI = 'sqlite:///:memory:'#testing database
+#DATABASE_URI = 'mysql+pymysql://avsd:helloworld@localhost:3306/college'
+engine = create_engine(DATABASE_URI)
 db_session = scoped_session(sessionmaker(bind=engine))
 Base.query = db_session.query_property()
 
@@ -42,7 +43,7 @@ app.register_blueprint(mod_admin, url_prefix='/admin')
 
 UPLOAD_FOLDER = '/home/dhatrish/projects/feedback/project/static/uploads'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-
+app.config['feedback_status'] = 0
 
 @app.route("/", methods=['GET', 'POST'])
 def home():
@@ -53,6 +54,10 @@ def home():
     if request.method == "POST":
         user_id = request.form['login_username']
         if request.form['role'] == 'student':
+            global feedback_status
+            if app.config['feedback_status']==0:
+                flash('Currently system is not accepting any feedback!')
+                return redirect(url_for('home'))
             student = Student.query.filter(Student.id == user_id).first()
             if student and bcrypt.check_password_hash(student.password, request.form['secretkey']):
                 session['student'] = user_id

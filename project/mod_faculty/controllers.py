@@ -8,7 +8,6 @@ mod_faculty = Blueprint('faculty', __name__)
 @mod_faculty.route("/", methods=['GET', 'POST'])
 def faculty_dashboard():
     if 'faculty' in session:
-        print('hey')
         faculty = Faculty.query.filter(Faculty.id == session['faculty']).first()
         return render_template('faculty/faculty_dashboard.html',
         faculty = faculty,
@@ -22,19 +21,22 @@ def faculty_dashboard():
 def logout():
     if('faculty' in session):
         session.pop('faculty', None)
+        flash('You have been logged out')
     return redirect(url_for('home'))
 
 @mod_faculty.route('/view/<int:id>',methods=['GET', 'POST'])
 def view_responses(id):
     if 'faculty' in session:
         my_obj = UploadCourses.query.filter(UploadCourses.id==id).first()
+        if my_obj is None:
+            abort(404)
         faculty = Faculty.query.filter(Faculty.id == session['faculty']).first()
         if my_obj.course == 0:
             theory = Theory.query.filter(Theory.id == id).first()
             if theory is None:
                 abort(404)
             theory_dict = theory.fetch_dict()
-            theory_dict['no_respones'] = theory.no_respones
+            theory_dict['no_responses'] = theory.no_responses
             remarks = Feedback.query.with_entities(Feedback.remark).filter(Feedback.upload_courses_id==id).all()
             print(remarks)
             return render_template('faculty/view_responses_theory.html',
@@ -46,18 +48,18 @@ def view_responses(id):
             if lab is None:
                 abort(404)
             lab_dict = lab.fetch_dict()
-            lab_dict['no_respones'] = lab.no_respones
+            lab_dict['no_responses'] = lab.no_responses
             remarks = Feedback.query.with_entities(Feedback.remark).filter(Feedback.upload_courses_id==id).all()
             return render_template('faculty/view_responses_lab.html',
             dict=lab_dict,
             faculty=faculty,
             remarks=remarks,)
         else:
-            tutorial = Tutorial.query.filter(Lab.id == id).first()
+            tutorial = Tutorial.query.filter(Tutorial.id == id).first()
             if tutorial is None:
                 abort(404)
-            tutorial_dict = lab.fetch_dict()
-            tutorial_dict['no_respones'] = tutorial.no_respones
+            tutorial_dict = tutorial.fetch_dict()
+            tutorial_dict['no_responses'] = tutorial.no_responses
             remarks = Feedback.query.with_entities(Feedback.remark).filter(Feedback.upload_courses_id==id).all()
             return render_template('faculty/view_responses_tutorial.html',
             dict=tutorial_dict,
@@ -77,28 +79,23 @@ def create_course():
             type = dict[request.form['type']]
             course = Courses.query.filter(Courses.id == course_id).first()
             section = Section.query.filter(Section.id == section_id).first()
-            print("Debug1")
             if course is None:
                 flash('Invalid Course ID')
                 return redirect(url_for('faculty.create_course'))
             if section is None:
-                flash('Invalid Section iD')
+                flash('Invalid Section ID')
                 return redirect(url_for('faculty.create_course'))
-            print("Debug2")
             try:
                 check = UploadCourses.query.filter(UploadCourses.course_id == course_id,
                 UploadCourses.section_id == section_id,
                 UploadCourses.faculty_id == faculty.id,
                 UploadCourses.course  == type).first()
-                print("Debug3")
                 if check is not None:
                     flash('Course already exists')
                     return redirect(url_for('faculty.create_course'))
-                print("Debug4")
                 my_obj = UploadCourses(course_id,section_id,faculty.id,type)
                 db_session.add(my_obj)
                 db_session.commit()
-                print('Debug5')
                 if type == 0:
                     db_session.add(Theory(my_obj.id))
                 elif type==1:
@@ -106,7 +103,6 @@ def create_course():
                 else:
                     db_session.add(Tutorial(my_obj.id))
                 db_session.commit()
-                print('Debug6')
                 flash('Course Created Successfully')
                 return redirect(url_for('faculty.faculty_dashboard'))
             except Exception as e:
@@ -115,3 +111,55 @@ def create_course():
             return render_template('faculty/create_course.html',
             faculty=faculty,)
     return redirect(url_for('home'))
+
+@mod_faculty.route('/change',methods=['GET', 'POST'])
+def change_password():
+    if 'faculty' in session:
+        faculty = Faculty.query.filter(Faculty.id == session['faculty']).first()
+        if request.method == 'POST':
+            if bcrypt.check_password_hash(faculty.password, request.form['old_pass']):
+                new_pass = bcrypt.generate_password_hash(request.form['new_pass']).decode('utf-8')
+                update_faculty = Faculty.query.filter(Faculty.id == session['faculty']).update({'password':new_pass})
+                try:
+                    db_session.commit()
+                except Exception as e:
+                    print(e)
+                    flash('Unknown error!')
+                    return redirect(url_for('faculty.change_password'))
+                flash('Successfully updated the password')
+                return redirect(url_for('faculty.faculty_dashboard'))
+            else:
+                flash('Old Password is incorrect')
+                return redirect(url_for('faculty.change_password'))
+        else:
+            return render_template('faculty/change_password.html',
+            faculty=faculty,)
+    return redirect(url_for('home'))
+
+@mod_faculty.route('/delete',methods=['GET'])
+def delete_course():
+    if 'faculty' in session:
+        faculty = Faculty.query.filter(Faculty.id == session['faculty']).first()
+        return render_template('faculty/delete_course.html',
+        faculty = faculty,
+        course_names = Courses,
+        )
+    return redirect(url_for('home'))
+
+@mod_faculty.route('/delete/<int:id>',methods=['GET'])
+def delete_course_id(id):
+    if 'faculty' in session:
+        faculty = Faculty.query.filter(Faculty.id == session['faculty']).first()
+        my_obj = UploadCourses.query.filter(UploadCourses.id == id).first()
+        if my_obj is None:
+            abort(404)
+        db_session.delete(my_obj)
+        try:
+            db_session.commit()
+            flash('Course Deleted Successfully')
+        except Exception as e:
+            flash('Error in deleting the course')
+            return redirect(url_for('faculty.delete_course'))
+        return redirect(url_for('faculty.faculty_dashboard'))
+    else:
+        return redirect(url_for('home'))

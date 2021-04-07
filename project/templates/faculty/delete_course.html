@@ -8,7 +8,7 @@
   <meta name="description" content="">
   <meta name="author" content="">
 
-  <title>Student | Dashboard</title>
+  <title>Faculty | Delete Course</title>
 
   <!-- Bootstrap core CSS -->
   <link href= "{{ url_for('static',filename='vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
@@ -43,65 +43,70 @@
 
     <!-- Sidebar -->
     <div class="bg-light border-right" id="sidebar-wrapper">
-      <div class="sidebar-heading">Hello {{ student.name }}</div>
+      <div class="sidebar-heading">Hello {{ faculty.name }}</div>
       <div class="list-group list-group-flush">
-        <a href="{{ url_for('student.change_password') }}" class="list-group-item list-group-item-action bg-light">Change Password</a>         
-        <a href="{{ url_for('student.logout') }}" class="list-group-item list-group-item-action bg-light">Log Out</a>
+        <a href="{{ url_for('faculty.faculty_dashboard') }}" class="list-group-item list-group-item-action bg-light">Home</a>
+        <a href="{{ url_for('faculty.logout') }}" class="list-group-item list-group-item-action bg-light">Log Out</a>
       </div>
     </div>
     <!-- /#sidebar-wrapper -->
 
     <!-- Page Content -->
     <div id="page-content-wrapper">
+
       <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
-        <button class="btn btn-primary" id="menu-toggle">Toggle Menu</button></nav>
+        <button class="btn btn-primary" id="menu-toggle">Toggle Menu</button>
+
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+      </nav>
 
       <div class="container-fluid">
 
         <div class="grid-x">
-            {% if upload_courses|length > 0: %}
+            {% if faculty.courses|length > 0: %}
        <table class="stack hover sortable" id="courseTable">
            <thead>
                <tr>
                    <th>Course ID</th>
                    <th>Course Name</th>
-                   <th>Faculty Name</th>
-                   <th>Feedback</th>
+                   <th>Action</th>
                </tr>
            </thead>
            <tbody>
-           {% for course in upload_courses %}
+           {% for course in faculty.courses %}
                <tr>
-                   <td id="#more">{{ course.course_id }}</td>
+                   <td >{{ course.course_id }}</td>
                    <td>{{ course_names.query.filter(course.course_id == course_names.id).first().name}}</td>
-                   <td>{{ faculty.query.filter(course.faculty_id == faculty.id).first().name}}</td>
-                   {% if filled.query.filter(filled.student_id==student.id,filled.upload_courses_id==course.id).first() is none %}
-                   <td><a href="{{ url_for('.submit_feedback',id=course.id) }}">Submit Feedback</a></td>
-                   {% else %}
-                   <td style="color:green;">Already Submitted</td>
-                   {% endif %}
+                   <td><a href="{{ url_for('faculty.delete_course_id',id=course.id) }}">Delete</a></td>
                </tr>
            {% endfor %}
            </tbody>
        </table>
        {% else %}
-            <center><h5>No Courses to submit feedback</h5></center>
+            <center><h5>No courses to delete.</h5></center>
        {% endif %}
-        </div>
-        </div>
-       <center>
-       {% with messages = get_flashed_messages() %}
-                {% if messages %}
-                       {% for message in messages %}
-                           <b><p style="color:green;">{{ message }}</p></b>
-                       {% endfor %}
-                 {% endif %}
-       {% endwith %}
-       </center>
+   </div>
+      </div>
+      <center>
+      {% with messages = get_flashed_messages() %}
+               {% if messages %}
+                      {% for message in messages %}
+                          <b><p style="color:green;">{{ message }}</p></b>
+                      {% endfor %}
+                {% endif %}
+      {% endwith %}
+  </center>
+
     </div>
+    <!-- /#page-content-wrapper -->
 
   </div>
+  <!-- /#wrapper -->
 
+  <!-- Bootstrap core JavaScript -->
   <script src="{{ url_for('static',filename='vendor/jquery/jquery.min.js') }}"></script>
   <script src="{{ url_for('static',filename='vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
 

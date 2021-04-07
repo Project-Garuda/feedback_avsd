@@ -1,6 +1,6 @@
 from project.mod_student.models import Student
 from project.mod_faculty.models import UploadCourses, Courses, Faculty,Filled,Theory,Feedback,Lab,Tutorial
-from project import db_session, bcrypt
+from project import db_session, bcrypt,app
 from sqlalchemy import and_, func
 from flask import Flask, render_template, request, redirect, url_for, Blueprint, session, abort,flash
 
@@ -8,9 +8,12 @@ mod_student = Blueprint('student', __name__)
 
 @mod_student.route("/" ,methods=['GET', 'POST'])
 def student_dashboard():
+    if app.config['feedback_status']==0:
+        flash('Currently system is not accepting any feedback!')
+        session.pop('student', None)
+        return redirect(url_for('home'))
     if 'student' in session:
         student = Student.query.filter(Student.id == session['student']).first()
-        print(student)
         section_ids = []
         for section in student.section:
             section_ids.append(section.id)
@@ -29,7 +32,7 @@ def student_dashboard():
 def logout():
     if 'student' in session:
         session.pop('student', None)
-        return redirect(url_for('home'))
+        flash('You have been logged out')
     return redirect(url_for('home'))
 
 @mod_student.route('/submit/<int:id>',methods=['GET', 'POST'])
@@ -44,9 +47,9 @@ def submit_feedback(id):
                     abort(404)
                 theory_dict = theory.fetch_dict()
                 for elem in theory_dict:
-                    theory_dict[elem] = (theory.no_respones*theory_dict[elem]+int(request.form[elem]))/(theory.no_respones+1)
+                    theory_dict[elem] = (theory.no_responses*theory_dict[elem]+int(request.form[elem]))/(theory.no_responses+1)
                 theory_dict['id'] = id
-                theory_dict['no_respones'] = theory.no_respones+1
+                theory_dict['no_responses'] = theory.no_responses+1
                 update_theory = Theory.query.filter(Theory.id == id).update(theory_dict)
             elif curr_upload_course_obj.course==1:
                 print('Hello world')
@@ -55,9 +58,9 @@ def submit_feedback(id):
                     abort(404)
                 lab_dict = lab.fetch_dict()
                 for elem in lab_dict:
-                    lab_dict[elem] = (lab.no_respones*lab_dict[elem]+int(request.form[elem]))/(lab.no_respones+1)
+                    lab_dict[elem] = (lab.no_responses*lab_dict[elem]+int(request.form[elem]))/(lab.no_responses+1)
                 lab_dict['id'] = id
-                lab_dict['no_respones'] = lab.no_respones+1
+                lab_dict['no_responses'] = lab.no_responses+1
                 update_lab = Lab.query.filter(Lab.id == id).update(lab_dict)
             else:
                 tutorial = Tutorial.query.filter(Tutorial.id == id).first()
@@ -65,9 +68,9 @@ def submit_feedback(id):
                     abort(404)
                 tutorial_dict = tutorial.fetch_dict()
                 for elem in tutorial_dict:
-                    tutorial_dict[elem] = (tutorial.no_respones*tutorial_dict[elem]+int(request.form[elem]))/(tutorial.no_respones+1)
+                    tutorial_dict[elem] = (tutorial.no_responses*tutorial_dict[elem]+int(request.form[elem]))/(tutorial.no_responses+1)
                 tutorial_dict['id'] = id
-                tutorial_dict['no_respones'] = tutorial.no_respones+1
+                tutorial_dict['no_responses'] = tutorial.no_responses+1
                 update_tutorial = Tutorial.query.filter(Tutorial.id == id).update(tutorial_dict)
             remark = request.form['remark'].strip()
             if len(remark)>0:
@@ -124,3 +127,27 @@ def submit_feedback(id):
                 )
     else:
         return redirect(url_for('home'))
+
+@mod_student.route('/change',methods=['GET', 'POST'])
+def change_password():
+    if 'student' in session:
+        student = Student.query.filter(Student.id == session['student']).first()
+        if request.method == 'POST':
+            if bcrypt.check_password_hash(student.password, request.form['old_pass']):
+                new_pass = bcrypt.generate_password_hash(request.form['new_pass']).decode('utf-8')
+                update_student = Student.query.filter(Student.id == session['student']).update({'password':new_pass})
+                try:
+                    db_session.commit()
+                except Exception as e:
+                    print(e)
+                    flash('Unknown error!')
+                    return redirect(url_for('student.change_password'))
+                flash('Successfully updated the password')
+                return redirect(url_for('student.student_dashboard'))
+            else:
+                flash('Old Password is incorrect')
+                return redirect(url_for('student.change_password'))
+        else:
+            return render_template('student/change_password.html',
+            student=student,)
+    return redirect(url_for('home'))
