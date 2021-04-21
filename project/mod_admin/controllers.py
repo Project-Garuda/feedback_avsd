@@ -13,9 +13,9 @@ def admin_dashboard():
     """This function is responsible for displaying content of the admin dashboard"""
     if 'admin' in session:
         admin = Admin.query.filter(Admin.id == session['admin']).first()#admin details are fetched
-        upload_coures = UploadCourses.query.all()#All the active courses are fetcheded
+        upload_courses = UploadCourses.query.all()#All the active courses are fetched
         return render_template('admin/admin_dashboard.html',
-        upload_coures=upload_coures,
+        upload_courses=upload_courses,
         faculty = Faculty,
         course_names = Courses,
         admin = admin,
