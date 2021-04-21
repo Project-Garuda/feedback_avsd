@@ -10,7 +10,7 @@ mod_admin = Blueprint('admin', __name__)
 
 @mod_admin.route("/dashboard/", methods=['GET', 'POST'])#route for admin dashboard
 def admin_dashboard():
-    """This is the fuction which is responsible for displaying content of the admin dashboard"""
+    """This function is responsible for displaying content of the admin dashboard"""
     if 'admin' in session:
         admin = Admin.query.filter(Admin.id == session['admin']).first()#admin details are fetched
         upload_coures = UploadCourses.query.all()#All the active courses are fetcheded
@@ -56,7 +56,7 @@ def view_responses(id):
                 abort(404)
             lab_dict = lab.fetch_dict()
             lab_dict['no_responses'] = lab.no_responses
-            remarks = Feedback.query.with_entities(Feedback.remark).filter(Feedback.upload_courses_id==id).all()
+            remarks = Feedback.query.with_entities(Feedback.remark).filter(Feedback.upload_courses_id==id).all()#getting remarks
             return render_template('admin/view_responses_lab.html',
             dict=lab_dict,
             admin=admin,
@@ -113,7 +113,7 @@ def admin_upload():
         return redirect(url_for('admin_home'))
 
 def process_data(files):
-    """ Core function where all the data processing happens."""
+    """Core function where all the data processing happens."""
     admin_objs = Admin.query.all()#To avoid removing admin credentials
     try:
         delete_engine_models()
@@ -236,7 +236,7 @@ def add_user():
 
 @mod_admin.route('/change',methods=['GET', 'POST'])
 def change_password():
-    """Function responsible for changin password of admin"""
+    """Function responsible for changing password of admin"""
     if 'admin' in session:
         admin = Admin.query.filter(Admin.id == session['admin']).first()
         if request.method == 'POST':

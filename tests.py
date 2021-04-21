@@ -4,7 +4,7 @@ from flask import url_for, request
 from base import BaseTestCase
 from project.mod_faculty.models import Faculty,Courses , Feedback, Theory, Lab, Tutorial, UploadCourses, Admin
 from project.mod_student.models import Student,Section,UploadSection
-
+"""All the testcases for checking the app"""
 class TestLogin(BaseTestCase):
 
     def test_student_login(self):

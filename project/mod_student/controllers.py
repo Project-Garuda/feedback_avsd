@@ -8,6 +8,7 @@ mod_student = Blueprint('student', __name__)
 
 @mod_student.route("/" ,methods=['GET', 'POST'])
 def student_dashboard():
+    """This function is responsible for displaying content of the student dashboard"""
     if app.config['feedback_status']==0:
         flash('Currently system is not accepting any feedback!')
         session.pop('student', None)
@@ -30,6 +31,7 @@ def student_dashboard():
 
 @mod_student.route('/logout')
 def logout():
+"""If student exists in the session student is logged out and returned to home else just redirect to home"""
     if 'student' in session:
         session.pop('student', None)
         flash('You have been logged out')
@@ -37,6 +39,7 @@ def logout():
 
 @mod_student.route('/submit/<int:id>',methods=['GET', 'POST'])
 def submit_feedback(id):
+    """Core Function for Feedback Submission of particluar upload course id(if valid)"""
     if 'student' in session:
         if request.method == "POST":
             result = request.form
@@ -130,6 +133,7 @@ def submit_feedback(id):
 
 @mod_student.route('/change',methods=['GET', 'POST'])
 def change_password():
+    """Function responsible for changing password"""
     if 'student' in session:
         student = Student.query.filter(Student.id == session['student']).first()
         if request.method == 'POST':

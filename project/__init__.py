@@ -41,12 +41,13 @@ app.register_blueprint(mod_faculty, url_prefix='/faculty')
 app.register_blueprint(mod_admin, url_prefix='/admin')
 
 
-UPLOAD_FOLDER = '/home/dhatrish/projects/feedback/project/static/uploads'
+UPLOAD_FOLDER = '/home/dhatrish/projects/feedback/project/static/uploads' #folder for storing files uploaded by admin
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-app.config['feedback_status'] = 0
+app.config['feedback_status'] = 0 #feedback status variable
 
 @app.route("/", methods=['GET', 'POST'])
 def home():
+    """Wrapper for login system"""
     if 'faculty' in session:
         return redirect(url_for('.faculty.faculty_dashboard'))
     if 'student' in session:
@@ -76,6 +77,7 @@ def home():
 
 @app.route("/admin", methods=['GET', 'POST'])
 def admin_home():
+    """Function responsible for login system on admin side"""
     if 'admin' in session:
         return redirect(url_for('.admin.admin_dashboard'))
     if request.method == "POST":
@@ -91,6 +93,7 @@ def admin_home():
 
 @app.after_request
 def after_request(response):
+    """Clearing cache after logout by user."""
     response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
     return response
 

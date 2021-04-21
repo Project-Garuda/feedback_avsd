@@ -7,6 +7,7 @@ mod_faculty = Blueprint('faculty', __name__)
 
 @mod_faculty.route("/", methods=['GET', 'POST'])
 def faculty_dashboard():
+    """This function is responsible for displaying content of the Faculty dashboard"""
     if 'faculty' in session:
         faculty = Faculty.query.filter(Faculty.id == session['faculty']).first()
         return render_template('faculty/faculty_dashboard.html',
@@ -19,6 +20,7 @@ def faculty_dashboard():
 
 @mod_faculty.route('/logout')
 def logout():
+    """If faculty exists in the session faculty is logged out and returned to home else just redirect to home"""
     if('faculty' in session):
         session.pop('faculty', None)
         flash('You have been logged out')
@@ -26,6 +28,7 @@ def logout():
 
 @mod_faculty.route('/view/<int:id>',methods=['GET', 'POST'])
 def view_responses(id):
+    """The responses of the requested upload_course_id is displayed if valid"""
     if 'faculty' in session:
         my_obj = UploadCourses.query.filter(UploadCourses.id==id).first()
         if my_obj is None:
@@ -70,6 +73,7 @@ def view_responses(id):
 
 @mod_faculty.route('/create',methods=['GET', 'POST'])
 def create_course():
+    """Fuction is responsible for creating course"""
     if 'faculty' in session:
         faculty = Faculty.query.filter(Faculty.id == session['faculty']).first()
         if request.method=='POST':
@@ -114,6 +118,7 @@ def create_course():
 
 @mod_faculty.route('/change',methods=['GET', 'POST'])
 def change_password():
+    """Function responsible for changing password"""
     if 'faculty' in session:
         faculty = Faculty.query.filter(Faculty.id == session['faculty']).first()
         if request.method == 'POST':
@@ -137,7 +142,8 @@ def change_password():
     return redirect(url_for('home'))
 
 @mod_faculty.route('/delete',methods=['GET'])
-def delete_course():
+def delete_course():3
+    """Function responsible for deleting a course"""
     if 'faculty' in session:
         faculty = Faculty.query.filter(Faculty.id == session['faculty']).first()
         return render_template('faculty/delete_course.html',
@@ -148,6 +154,7 @@ def delete_course():
 
 @mod_faculty.route('/delete/<int:id>',methods=['GET'])
 def delete_course_id(id):
+    """Function responsible for deleting a course having particular id in upload course"""
     if 'faculty' in session:
         faculty = Faculty.query.filter(Faculty.id == session['faculty']).first()
         my_obj = UploadCourses.query.filter(UploadCourses.id == id).first()
