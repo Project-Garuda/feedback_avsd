@@ -3,11 +3,14 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm import scoped_session, sessionmaker
 import pymysql
-
 from project import Base
 from project.mod_student.models import Student, Section
 
+"""Consists of all the classes related to Faculty"""
+"""All the passwords are hashed and stored in the database using flask bcrypt"""
+
 class Admin(Base):
+    """Admin credentials are stored in this class"""
     __tablename__ = 'admin'
     id = Column(Integer, primary_key=True)
     name =  Column(String(50))
@@ -19,6 +22,7 @@ class Admin(Base):
         self.password = password
 
 class Faculty(Base):
+    """Faculty credentials are stored in this class"""
     __tablename__ = 'faculty'
     id = Column(Integer, primary_key=True)
     name =  Column(String(50))
@@ -31,6 +35,7 @@ class Faculty(Base):
         self.password = password
 
 class Courses(Base):
+    """List of all the courses are stored in this class"""
     __tablename__ = 'courses'
     id = Column(String(10), primary_key=True)
     name =  Column(String(100))
@@ -40,9 +45,7 @@ class Courses(Base):
         self.name = name
 
 class UploadCourses(Base):
-    """docstring for UploadCourses.
-        0 for course , 1 for lab, 2 for tutorial
-    """
+    """Contains list of courses mapped to the faculty by whom the course is taught and the section in which the course is taught."""
     __tablename__ = 'upload_courses'
     id = Column(Integer, primary_key=True)
     course_id = Column(String(10), ForeignKey('courses.id', onupdate='CASCADE', ondelete='CASCADE'))
@@ -58,6 +61,7 @@ class UploadCourses(Base):
 
 
 class Feedback(Base):
+    """All the remarks submitted by student are stored here."""
     __tablename__ = 'feedback'
     id = Column(Integer, primary_key=True)
     upload_courses_id = Column(Integer, ForeignKey('upload_courses.id', onupdate='CASCADE', ondelete='CASCADE'))
@@ -68,6 +72,8 @@ class Feedback(Base):
         self.remark = remark
 
 class Filled(Base):
+    """If a student fills the feedback the id of student and the course id of which he/she has filled
+    is stored here"""
     __tablename__ = 'filled'
     id = Column(Integer, primary_key=True)
     student_id = Column(Integer, ForeignKey('student.id', onupdate='CASCADE', ondelete='CASCADE'))
@@ -78,6 +84,7 @@ class Filled(Base):
         self.upload_courses_id = upload_courses_id
 
 class Theory(Base):
+    """All the theory courses which belong to UploadCourses are stored here with rating parameters"""
     __tablename__ = 'theory'
     id = Column(Integer,ForeignKey('upload_courses.id', onupdate='CASCADE', ondelete='CASCADE'),primary_key=True)
     no_responses = Column(Integer, default = 0)
@@ -116,6 +123,7 @@ class Theory(Base):
         'p15':self.p15 }
 
 class Lab(Base):
+    """All the Lab courses which belong to UploadCourses are stored here with rating parameters"""
     __tablename__ = 'lab'
     id = Column(Integer,ForeignKey('upload_courses.id', onupdate='CASCADE', ondelete='CASCADE'),primary_key=True)
     no_responses = Column(Integer, default = 0)
@@ -145,6 +153,7 @@ class Lab(Base):
         'p10':self.p10}
 
 class Tutorial(Base):
+    """All the Tutorial courses which belong to UploadCourses are stored here with rating parameters"""
     __tablename__ = 'tutorial'
     id = Column(Integer,ForeignKey('upload_courses.id', onupdate='CASCADE', ondelete='CASCADE'),primary_key=True)
     no_responses = Column(Integer, default = 0)

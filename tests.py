@@ -139,7 +139,7 @@ class TestFacultyControllers(BaseTestCase):
             self.assertNotEqual(check, None)
             self.assertNotEqual(theory, None)
 
-    def test_create_course_theory(self):
+    def test_create_course_lab(self):
         with self.app.test_client() as c:
             response = c.post('/', data=dict(login_username = '2801083', secretkey= '2801083', role = 'faculty'))
             self.assertEqual(response.status_code, 302)
@@ -157,7 +157,7 @@ class TestFacultyControllers(BaseTestCase):
             self.assertNotEqual(check, None)
             self.assertNotEqual(lab, None)
 
-    def test_create_course_theory(self):
+    def test_create_course_tutorial(self):
         with self.app.test_client() as c:
             response = c.post('/', data=dict(login_username = '2801083', secretkey= '2801083', role = 'faculty'))
             self.assertEqual(response.status_code, 302)
@@ -288,7 +288,7 @@ class TestAdminControllers(BaseTestCase):
         with self.app.test_client() as c:
             response = c.post('/admin', data=dict(login_username = '3801081', secretkey= '3801081'))
             self.assertEqual(response.status_code, 302)
-            response = c.post('/admin/add', data=dict(id = '1901037',name='pushpa', role = 'student'),follow_redirects=True)
+            response = c.post('/admin/add', data=dict(id = '1901037',name='pushpa',section='CG31', role = 'student'),follow_redirects=True)
             self.assertEqual(response.status_code, 200)
             self.assertIn(b"User added Successfully",response.data)
             response = c.post('/admin/add', data=dict(id = '2901037', name='sukumar', role = 'faculty'),follow_redirects=True)
@@ -296,6 +296,8 @@ class TestAdminControllers(BaseTestCase):
             self.assertIn(b"User added Successfully",response.data)
             self.assert_template_used('admin/admin_dashboard.html')
             check = Student.query.filter(Student.id=='1901037',Student.name == 'pushpa').first()
+            self.assertNotEqual(check, None)
+            check = UploadSection.query.filter(UploadSection.id=='CG31',UploadSection.student_id=='1901037').first()
             self.assertNotEqual(check, None)
             check = Faculty.query.filter(Faculty.id=='2901037',Faculty.name == 'sukumar').first()
             self.assertNotEqual(check, None)

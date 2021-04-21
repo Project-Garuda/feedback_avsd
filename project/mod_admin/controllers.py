@@ -8,7 +8,6 @@ import openpyxl as op
 
 mod_admin = Blueprint('admin', __name__)
 
-
 @mod_admin.route("/dashboard/", methods=['GET', 'POST'])#route for admin dashboard
 def admin_dashboard():
     """This is the fuction which is responsible for displaying content of the admin dashboard"""
@@ -33,26 +32,25 @@ def logout():
         flash('You have been logged out')
     return redirect(url_for('admin_home'))
 
-@mod_admin.route("/view/<int:id>", methods=['GET', 'POST'])
+@mod_admin.route("/view/<int:id>", methods=['GET', 'POST'])#route for viewing a particular course response
 def view_responses(id):
     """This function is called when admin wishes to view responses of a particular course,this function will be
     called along with the id of upload courses for which which admin wants to view responses"""
     if 'admin' in session:#check if admin is in session or not
         my_obj = UploadCourses.query.filter(UploadCourses.id==id).first()#get object with that particular course
         admin = Admin.query.filter(Admin.id == session['admin']).first()
-        if my_obj.course == 0:
+        if my_obj.course == 0:#if the course is theory course
             theory = Theory.query.filter(Theory.id == id).first()
             if theory is None:
                 abort(404)
             theory_dict = theory.fetch_dict()
             theory_dict['no_responses'] = theory.no_responses
             remarks = Feedback.query.with_entities(Feedback.remark).filter(Feedback.upload_courses_id==id).all()
-            print(remarks)
             return render_template('admin/view_responses_theory.html',
             dict=theory_dict,
             admin=admin,
             remarks=remarks,)
-        elif my_obj.course==1:
+        elif my_obj.course==1:#if the course is lab course
             lab = Lab.query.filter(Lab.id == id).first()
             if lab is None:
                 abort(404)
@@ -64,6 +62,7 @@ def view_responses(id):
             admin=admin,
             remarks=remarks,)
         else:
+            #if the course is tutorial course
             tutorial = Tutorial.query.filter(Lab.id == id).first()
             if tutorial is None:
                 abort(404)
@@ -77,8 +76,10 @@ def view_responses(id):
     else:
         return redirect(url_for('admin_home'))
 
-@mod_admin.route("/upload",methods=['GET','POST'])
+@mod_admin.route("/upload",methods=['GET','POST'])#uploading data route
 def admin_upload():
+    """"The function is responsible for taking the data from admin and updataing the database with new data
+    collected from the admin."""
     if 'admin' in session:
         admin = Admin.query.filter(Admin.id == session['admin']).first()
         if request.method == 'POST':
@@ -91,11 +92,14 @@ def admin_upload():
                     if current_file:
                         filename = secure_filename(file+'.'+name)
                         files.append(filename)
+                        #upload folder is location where filed are stored locally
                         current_file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
                 if process_data(files)==1:
+                    #returning success message
                     flash('Data processed successfully')
                     return redirect(url_for('admin.admin_dashboard'))
                 else:
+                    #Error case
                     flash('Error')
                     return redirect(url_for('admin.admin_upload'))
             except Exception as e:
@@ -109,7 +113,8 @@ def admin_upload():
         return redirect(url_for('admin_home'))
 
 def process_data(files):
-    admin_objs = Admin.query.all()
+    """ Core function where all the data processing happens."""
+    admin_objs = Admin.query.all()#To avoid removing admin credentials
     try:
         delete_engine_models()
         create_engine_models()
@@ -123,8 +128,6 @@ def process_data(files):
 
     wb_obj = op.load_workbook(os.path.join(app.config['UPLOAD_FOLDER'], files[0]))
     sheet_obj = wb_obj.active
-    print(sheet_obj.max_row)
-    print(sheet_obj.max_column)
     m_row = sheet_obj.max_row
     for i in range(2, m_row+1):
         id = int(sheet_obj.cell(row = i, column = 1).value)
@@ -139,8 +142,6 @@ def process_data(files):
 
     wb_obj = op.load_workbook(os.path.join(app.config['UPLOAD_FOLDER'], files[1]))
     sheet_obj = wb_obj.active
-    print(sheet_obj.max_row)
-    print(sheet_obj.max_column)
     m_row = sheet_obj.max_row
     for i in range(2, m_row+1):
         id = int(sheet_obj.cell(row = i, column = 1).value)
@@ -155,8 +156,6 @@ def process_data(files):
 
     wb_obj = op.load_workbook(os.path.join(app.config['UPLOAD_FOLDER'], files[2]))
     sheet_obj = wb_obj.active
-    print(sheet_obj.max_row)
-    print(sheet_obj.max_column)
     m_row = sheet_obj.max_row
     for i in range(2, m_row+1):
         id = sheet_obj.cell(row = i, column = 1).value
@@ -170,8 +169,6 @@ def process_data(files):
 
     wb_obj = op.load_workbook(os.path.join(app.config['UPLOAD_FOLDER'], files[3]))
     sheet_obj = wb_obj.active
-    print(sheet_obj.max_row)
-    print(sheet_obj.max_column)
     m_col = sheet_obj.max_column
     for i in range(1, m_col+1):
         id = sheet_obj.cell(row = 1, column = i).value
@@ -195,6 +192,7 @@ def process_data(files):
 
 @mod_admin.route('/add',methods=['GET', 'POST'])
 def add_user():
+    """Function responsible for Add user feature."""
     if 'admin' in session:
         admin = Admin.query.filter(Admin.id == session['admin']).first()
         if request.method=='POST':
@@ -202,11 +200,28 @@ def add_user():
             name = request.form['name']
             role = request.form['role']
             if role=='faculty':
+                fac = Faculty.query.filter(Faculty.id == id).first()
+                if fac is not None:
+                    flash('Faculty already exists!')
+                    return redirect(url_for('admin.add_user'))
                 password = bcrypt.generate_password_hash(str(id)).decode('utf-8')
                 db_session.add(Faculty(id,name,password))
             else:
+                section = request.form['section']
+                stu = Student.query.filter(Student.id == id).first()
+                if stu is not None:
+                    flash('Student already exists!')
+                    return redirect(url_for('admin.add_user'))
+                if section is None:
+                    flash('Please enter Section id!')
+                    return redirect(url_for('admin.add_user'))
+                sec = Section.query.filter(Section.id == section).first()
+                if sec is None:
+                    flash('Invalid Section ID')
+                    return redirect(url_for('admin.add_user'))
                 password = bcrypt.generate_password_hash(str(id)).decode('utf-8')
                 db_session.add(Student(id,name,password))
+                db_session.add(UploadSection(section,id))
             try:
                 db_session.commit()
                 flash('User added Successfully')
@@ -221,6 +236,7 @@ def add_user():
 
 @mod_admin.route('/change',methods=['GET', 'POST'])
 def change_password():
+    """Function responsible for changin password of admin"""
     if 'admin' in session:
         admin = Admin.query.filter(Admin.id == session['admin']).first()
         if request.method == 'POST':
@@ -245,6 +261,7 @@ def change_password():
 
 @mod_admin.route('/toggle',methods=['GET'])
 def toggle_feedback():
+    """Function responsible for Changing the status of feedback"""
     if 'admin' in session:
         app.config['feedback_status']=1-app.config['feedback_status']
         return redirect(url_for('admin.admin_dashboard'))
