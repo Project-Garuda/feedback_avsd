@@ -31,7 +31,7 @@ def student_dashboard():
 
 @mod_student.route('/logout')
 def logout():
-"""If student exists in the session student is logged out and returned to home else just redirect to home"""
+    """If student exists in the session student is logged out and returned to home else just redirect to home"""
     if 'student' in session:
         session.pop('student', None)
         flash('You have been logged out')

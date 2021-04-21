@@ -142,7 +142,7 @@ def change_password():
     return redirect(url_for('home'))
 
 @mod_faculty.route('/delete',methods=['GET'])
-def delete_course():3
+def delete_course():
     """Function responsible for deleting a course"""
     if 'faculty' in session:
         faculty = Faculty.query.filter(Faculty.id == session['faculty']).first()
