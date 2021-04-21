@@ -331,5 +331,27 @@ class TestAdminControllers(BaseTestCase):
             self.assertEqual(app.config['feedback_status'],0)
             self.assert_template_used('admin/admin_dashboard.html')
 
+class TestStudentControllers(BaseTestCase):
+
+    def test_change_password_student(self):
+        with self.app.test_client() as c:
+            response = c.post('/', data=dict(login_username = '1801083', secretkey= '1801083', role = 'student'),follow_redirects=True)
+            self.assertEqual(response.status_code, 200)
+            response = c.post('/student/change', data=dict(old_pass = '1801083', new_pass = '1801084'),follow_redirects=True)
+            self.assertEqual(response.status_code, 200)
+            self.assertIn(b"Successfully updated the password",response.data)
+            response = c.get(url_for('student.logout'), follow_redirects=True)
+            self.assertEqual(response.status_code, 200)
+            self.assertIn(b"You have been logged out", response.data)
+            response = c.post('/', data=dict(login_username = '1801083', secretkey= '1801084', role = 'student'))
+            self.assertEqual(response.status_code, 302)
+            self.assertEqual(response.location, url_for('student.student_dashboard', _external=True))
+            response = c.post('/student/change', data=dict(old_pass = '1801084', new_pass = '1801083'))
+            self.assertEqual(response.status_code, 302)
+            self.assertEqual(response.location, url_for('student.student_dashboard', _external=True))
+            response = c.get(url_for('student.logout'), follow_redirects=True)
+            self.assertEqual(response.status_code, 200)
+            self.assertIn(b"You have been logged out", response.data)
+
 if __name__ == '__main__':
     unittest.main()
