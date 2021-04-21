@@ -55,7 +55,6 @@ def submit_feedback(id):
                 theory_dict['no_responses'] = theory.no_responses+1
                 update_theory = Theory.query.filter(Theory.id == id).update(theory_dict)
             elif curr_upload_course_obj.course==1:
-                print('Hello world')
                 lab = Lab.query.filter(Lab.id == id).first()
                 if lab is None:
                     abort(404)
@@ -95,9 +94,7 @@ def submit_feedback(id):
             student_courses = UploadCourses.query.with_entities(UploadCourses.id).filter(UploadCourses.section_id.in_(section_ids)).all()
             not_present = True
             for course in student_courses:
-                print(course)
                 if id == course[0]:
-                    print(course[0])
                     not_present = False
                     break
             if not_present:

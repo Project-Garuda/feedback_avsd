@@ -11,8 +11,8 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine
 
 Base = declarative_base()
-#DATABASE_URI = 'sqlite:///:memory:'#testing database
-DATABASE_URI = 'mysql+pymysql://avsd:helloworld@localhost:3306/college'
+DATABASE_URI = 'sqlite:///:memory:'#testing database
+#DATABASE_URI = 'mysql+pymysql://avsd:helloworld@localhost:3306/college'
 engine = create_engine(DATABASE_URI,echo=False)
 db_session = scoped_session(sessionmaker(bind=engine))
 Base.query = db_session.query_property()
