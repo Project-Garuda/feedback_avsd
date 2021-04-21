@@ -44,7 +44,8 @@ enrolled in and submit the feedback. A student can submit feedback only to the c
 enrolled in. The student interface ensures that a student can submit feedback for a course at most
 once.
 
-### **Note : Structure for the excel files to be uploaded by the Admin is provided in the UploadFiles folder.Admin needs to strictly follow the structure provided in UploadFiles and only excel files need to be uploaded.**
+### **Note : Structure for the excel files to be uploaded by the Admin is provided in the UploadFiles folder.**
+### **Admin needs to strictly follow the structure provided in UploadFiles and only excel files need to be uploaded.**
 
 
 
