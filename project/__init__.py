@@ -55,7 +55,6 @@ def home():
     if request.method == "POST":
         user_id = request.form['login_username']
         if request.form['role'] == 'student':
-            global feedback_status
             if app.config['feedback_status']==0:
                 flash('Currently system is not accepting any feedback!')
                 return redirect(url_for('home'))
